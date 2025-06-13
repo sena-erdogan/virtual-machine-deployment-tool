@@ -1,0 +1,28 @@
+vcenter_hostname: hostname
+vcenter_datacenter: datacenter
+vcenter_username: username
+vcenter_password: password
+vcenter_validate_certs: false
+vcenter_cluster: cluster
+vm_name: vm_name
+vcenter_destination_folder: folder
+vm_state: poweredon
+vm_template: template
+memory_mb: memory
+num_cpus: cou
+network_name: network
+vlan_id: vlan_id
+ip: ip
+dswitch: dwitch
+netmask: netmask
+gateway: gateway
+vm_disks:
+  - size_gb: size1
+    type: thick
+    datastore: datastore1
+  - size_gb: size2
+    type: thick
+    datastore: datastore2
+  - size_gb: size3
+    type: thick
+    datastore: datastore3

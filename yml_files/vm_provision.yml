@@ -1,0 +1,42 @@
+---
+- name: Create VM
+  hosts: localhost
+  become: false
+  gather_facts: false
+  vars_files:
+    - vm_provision_vars.yml
+  tasks:
+    - name: Create VM
+      community.vmware.vmware_guest:
+        hostname: "{{ vcenter_hostname }}"
+        username: "{{ vcenter_username }}"
+        password: "{{ vcenter_password }}"
+        validate_certs: "{{ vcenter_validate_certs }}"
+        datacenter: "{{ vcenter_datacenter }}"
+        template: "{{ vm_template }}"
+        name: "{{ vm_name }}"
+        state: "{{ vm_state }}"
+        cluster: "{{ vcenter_cluster }}"
+        folder: "{{ vcenter_destination_folder }}"
+        hardware:
+          memory_mb: "{{ memory_mb }}"
+          num_cpus: "{{ num_cpus }}"
+        disk: "{{ vm_disks }}"
+        networks:
+        - name: "{{ network_name }}"
+          ip: "{{ ip }}"
+          netmask: "{{ netmask }}"
+          gateway: "{{ gateway }}"
+          type: static
+    - name: Add network adapter
+      community.vmware.vmware_guest_network:
+        hostname: "{{ vcenter_hostname }}"
+        username: "{{ vcenter_username }}"
+        password: "{{ vcenter_password }}"
+        cluster: "{{ vcenter_cluster }}"
+        datacenter: "{{ vcenter_datacenter }}"
+        validate_certs: "{{ vcenter_validate_certs }}"
+        name: "{{ vm_name }}"
+        gather_network_info: false
+        vlan_id: "{{ vlan_id }}"
+        connected: true
