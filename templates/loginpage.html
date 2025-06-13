@@ -1,0 +1,50 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Deployment Automation</title>
+</head>
+<body>
+
+<div class="banner">
+  <form class="form" method="POST">
+
+    <div class="logingrid">
+
+      <div></div>
+      <div class="card">
+        <div class="cardgrid">
+          <div></div>
+          
+          <div class="input-container">
+            <i class="usericon"></i>
+            <input   class="input-field" type="text" autocomplete="off" placeholder="Username" required name="username" id="username" >
+          </div>
+          <div class="input-container">
+            <i class="passwordicon"></i>
+            <input class="input-field"  type="password" autocomplete="off" placeholder="Password" required name="password" id="password">
+          </div>
+          <div class="buttonerror">
+            {% if error %} <div class="error-message">{{ error }}</div> {% else %} <div class="error-placeholder"></div> {% endif %}
+ 
+ 
+         <button class="loginbutton"> Login</button>
+         </div>
+    
+
+        </div>
+
+         
+      <div></div>
+
+
+    </div>
+
+
+   
+   </form>
+
+</div>
+</body>
+</html>

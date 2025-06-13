@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+       <meta charset="UTF-8">
+       <meta name="viewport" content="width=device-width, initial-scale=1.0">
+       <title>VM Deployment</title>  
+      <link
+    rel="stylesheet"
+    href="{{ url_for('static',filename='selectize/selectize.default.min.css') }}"
+    integrity="sha512-pTaEn+6gF1IeWv3W1+7X7eM60TFu/agjgoHmYhAfLEU8Phuf6JKiiE8YmsNC0aCgQv4192s4Vai8YZ6VNM6vyQ=="
+    crossorigin="anonymous"
+    referrerpolicy="no-referrer"
+  />
+  <script
+    src="{{ url_for('static',filename='selectize/selectize.min.js') }}"
+    integrity="sha512-IOebNkvA/HZjMM7MxL0NYeLYEalloZ8ckak+NDtOViP7oiYzG5vn6WVXyrJDiJPhl4yRdmNAG49iuLmhkUdVsQ=="
+    crossorigin="anonymous"
+    referrerpolicy="no-referrer"
+  ></script>
+  </head>
+  <body>
+    
+    <div class="banner">
+     
+      
+      <div class="card">
+
+         <div class="container">
+            
+            <div class="card3">
+               <form class="form" method="POST" id="create-form">
+               <div class="parent">
+
+                  <div>
+                     <div class="formtext">Template</div>
+                     <select   required id="template" name="template">
+                        <option value=""></option>
+                        {% for template in templates %}
+                        <option value="{{ template }}">{{ template }}</option>
+                  {% endfor %}
+                      </select>   
+                  </div>
+
+                  <div class="input-group">   
+                     <div class="formtext">VM Name</div>
+                     <input type="text" required id="name" name="name" ></input>
+                    
+                  </div>
+
+                  <div>
+                     <div class="formtext">CPU</div>
+                   <select required id="cpu" name="cpu">
+                     <option value=""></option>
+                     {% for num in range(1,33) %}
+                     {% if num % 2 == 0 or num == 1 %}
+                       <option value="{{ num }}">{{ num }}</option>
+                   {% endif %}
+                 {% endfor %}
+                   </select>  
+                  </div> 
+
+                  
+                  <div>
+                     <div class="formtext">Memory</div>
+                  <select  required id="memory" name="memory">
+                     <option value=""></option>
+                     {% for num in range(1,65) %}
+                     {% if num % 2 == 0 or num == 1 %}
+                         <option value="{{ num }}">{{ num }}</option>
+                     {% endif %}
+                   {% endfor %}
+                   </select>   
+                  </div>
+                
+
+                  <div></div>
+                  <div></div>
+                  
+                  <div class="cardinside123">
+
+                  </div>
+         
+                  <div class="buttonsbox" >                   
+                     <div class="buttonspacing"></div>
+                     <button class="button-2" onclick="window.location='/vm_installation_1';" name="previous" id = "previous">Back</button>
+                     <button class="button-1" name="next" id = "next">Next</button>
+                  </div>
+            </form>
+
+               </div>
+               
+               
+            </div>
+         </div>
+  
+
+      </div>
+
+    </div>
+    <script>
+   // Add event listener to the document
+   document.addEventListener("keydown", function (event) {
+     // Check if the Enter key was pressed
+     if (event.key === "Enter") {
+       // Prevent the default action (like form submission, if any)
+       event.preventDefault();
+       // Programmatically click the Next button
+       const nextButton = document.getElementById("next");
+       if (nextButton) {
+         nextButton.click();
+       }
+     }
+   });
+  </script>
+    <script>
+    
+    document.getElementById('next').disabled = true;
+    document.getElementById('previous').disabled = false;
+
+    document.getElementById('previous').addEventListener('click', function() {
+        this.setAttribute('name', 'previous');
+    });
+    
+    template_select = document.getElementById('template');
+
+    // 4. Function to check if all required fields are filled and enable the button
+    function checkFormFields() {
+        // Get all form inputs and selects
+        const name = document.getElementById('name').value;
+        const memory = document.getElementById('memory').value;
+        const cpu = document.getElementById('cpu').value;
+        const template = document.getElementById('template').value;
+     
+        const nextButton = document.getElementById('next');
+     
+        // Check if all fields are non-empty
+        const allFieldsFilled = name && memory && cpu && template;
+     
+        // Enable or disable the create button based on whether all fields are filled
+        nextButton.disabled = !allFieldsFilled;  // Disable the button if not all fields are filled
+        
+        document.getElementById('previous').disabled = false;
+    }
+    
+    // Attach the checkFormFields function to all form inputs and selects
+    document.querySelectorAll('#create-form input').forEach(function(element) {
+        element.addEventListener('input', checkFormFields);
+    });
+
+    document.querySelectorAll('#create-form select').forEach(function(element) {
+        element.addEventListener('input', checkFormFields);
+    });
+
+    document.addEventListener("DOMContentLoaded", () => {
+
+// Retrieve and populate form fields from sessionStorage
+
+const fields = ["template", "name", "memory", "cpu"];
+
+fields.forEach((field) => {
+
+  const fieldValue = sessionStorage.getItem(field);
+
+  if (fieldValue) {
+   if(field == "name"){
+
+    const inputField = document.getElementById(field);
+    console.log(inputField
+       
+    );
+    console.log(inputField.value);
+
+    if (inputField) {
+
+      inputField.value = fieldValue;
+
+    }
+   }
+   else{
+      const stringselect= "#"+field;
+      const field_select = $(stringselect).selectize()[0].selectize;
+      field_select.setValue(fieldValue);
+
+   }
+
+  }
+
+});
+
+// Save data to sessionStorage when the form is submitted
+
+const form = document.querySelector(".form");
+
+if (form) {
+
+  form.addEventListener("submit", (event) => {
+
+    fields.forEach((field) => {
+
+      const inputField = document.getElementById(field);
+
+      if (inputField) {
+
+        sessionStorage.setItem(field, inputField.value);
+
+      }
+
+    });
+
+  });
+
+}
+
+});
+setInterval(checkFormFields,100);
+$('#cpu').selectize();
+   var $cpu = $("#cpu").selectize({
+    //options here
+   });
+
+   $('#memory').selectize();
+      var $memory = $("#memory").selectize({
+      //options here
+   });
+
+   $('#template').selectize();
+      var $template = $("#template").selectize({
+      //options here
+   });
+ 
+</script>
+  </body>
+</html>

@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+       <meta charset="UTF-8">
+       <meta name="viewport" content="width=device-width, initial-scale=1.0">
+       <title>VM Deployment</title>
+       <script src="{{ url_for('static',filename='selectize/jquery-3.6.0.min.js') }}"  ></script>
+      <link
+    rel="stylesheet"
+    href="{{ url_for('static',filename='selectize/selectize.default.min.css') }}"
+    integrity="sha512-pTaEn+6gF1IeWv3W1+7X7eM60TFu/agjgoHmYhAfLEU8Phuf6JKiiE8YmsNC0aCgQv4192s4Vai8YZ6VNM6vyQ=="
+    crossorigin="anonymous"
+    referrerpolicy="no-referrer"
+  />
+  <script
+    src="{{ url_for('static',filename='selectize/selectize.min.js') }}"
+    integrity="sha512-IOebNkvA/HZjMM7MxL0NYeLYEalloZ8ckak+NDtOViP7oiYzG5vn6WVXyrJDiJPhl4yRdmNAG49iuLmhkUdVsQ=="
+    crossorigin="anonymous"
+    referrerpolicy="no-referrer"
+  ></script>
+  </head>
+  <body>
+    
+    <div class="banner">
+     
+      
+      <div class="card">
+
+         <div class="container">
+            
+            <div class="card3">
+               <div class="diskparent">
+                  
+                  <div class="headingbox"> 
+                     <div class="heading">
+                     <p1> Disk (GB)</p1>
+                   </div>
+                  </div>
+              <form class="form" method="POST" id="create-form">
+                                 
+
+
+                  <div class="diskwrap">
+                        <div class="formtext">Number of Disks</div>
+                        <select required id="diskCount" name="diskCount" onchange="generateInputFields()">
+                           <option value=""></option>
+                           <option value="1">1</option>
+                           <option value="2">2</option>
+                           <option value="3">3</option>
+                           <option value="4">4</option>
+                           <option value="5">5</option>
+                           <option value="6">6</option>
+                           <option value="7">7</option>
+                           <option value="8">8</option>
+                           <option value="9">9</option>
+                           <option value="10">10</option>
+                        </select>   
+                  </div>
+
+                  <div id="inputContainer" class="inputContainer"> </div>
+
+                  <div class="cardinsidedisk"></div>
+                  <div class="buttonsbox" >                   
+                     <div class="buttonspacing"></div>
+                     <button class="button-2" onclick="window.location='/vm_installation_3';" role="button" name="previous" id = "previous">Back</button>
+                     <button class="button-1" role="button" name="next" id = "next">Next</button>
+                  </div>
+            </form>
+
+               </div>
+               
+               
+            </div>
+         </div>
+  
+      </div>
+
+    </div>
+    <script>
+      // Add event listener to the document
+      document.addEventListener("keydown", function (event) {
+        // Check if the Enter key was pressed
+        if (event.key === "Enter") {
+          // Prevent the default action (like form submission, if any)
+          event.preventDefault();
+          // Programmatically click the Next button
+          const nextButton = document.getElementById("next");
+          if (nextButton) {
+            nextButton.click();
+          }
+        }
+      });
+     </script>
+
+    <script>
+          document.getElementById('next').disabled = true;
+    document.getElementById('previous').disabled = false;
+
+    document.getElementById('previous').addEventListener('click', function() {
+        this.setAttribute('name', 'previous');
+    });
+    
+    inputContainer.innerHTML = '';
+    
+      function generateInputFields() {
+
+        console.log("in genereateinput fields");
+        const inputContainer = document.getElementById('inputContainer');
+       
+        const diskCount =$diskCount[0].selectize.lastValidValue;
+      
+        // Clear any existing input fields
+        inputContainer.innerHTML = '';
+  
+        // Create the specified number of input fields
+        for (let i = 1; i <= diskCount; i++) {
+          // Create the input group div
+
+  
+          const inputGroup = document.createElement('div');
+          inputGroup.className = 'input-group';
+  
+          // Create the input element
+          const input = document.createElement('input');
+          input.type = 'text';
+   
+          input.required = true;
+          input.id = `disk${i}`;
+          input.name = `disk${i}`;
+  
+          // Create the label element
+          const label = document.createElement('label');
+          label.setAttribute('for', `disk${i}`);
+          label.innerText = `Disk - ${i} `;
+  
+          // Append input and label to the input group
+          inputGroup.appendChild(input);
+          inputGroup.appendChild(label);
+
+         
+   input.addEventListener('input', function (event) {
+
+      event.target.value = event.target.value.replace(/[^0-9.]/g, '');
+   });
+  
+          // Append the input group to the container
+          inputContainer.appendChild(inputGroup);
+
+     
+        }
+
+      }
+
+      function checkFormFields() {
+        // Get all form inputs and selects
+         const diskCount = $diskCount[0].selectize.lastValidValue;
+      
+         const nextButton = document.getElementById('next');
+
+        
+         var diskCheckCount=0;
+
+
+
+         for(let i = 1; i <= diskCount; i++){
+            
+          const diskitem = document.getElementById(`disk${i}`);
+
+            if(diskitem.value!=0){
+
+               diskCheckCount= diskCheckCount+1;
+              // console.log( "iskCheckCount"+diskCheckCount);
+               
+            }
+            
+         }
+      
+         // Check if all fields are non-empty
+         const allFieldsFilled = diskCount && (diskCount==diskCheckCount)&& (diskCount!=0);
+      
+         // Enable or disable the create button based on whether all fields are filled
+         nextButton.disabled = !allFieldsFilled;  // Disable the button if not all fields are filled
+        // nextButton.disabled= !diskCount;
+        console.log(diskCount);
+        console.log(diskCheckCount);
+
+         console.log(allFieldsFilled);
+
+
+         document.getElementById('previous').disabled = false;
+      }
+     
+     document.querySelectorAll('#create-form select').forEach(function(element) {
+         element.addEventListener('input', checkFormFields);
+     });
+     document.querySelectorAll('#create-form input').forEach(function(element) {
+        element.addEventListener('input', checkFormFields);
+    });
+
+    setInterval(checkFormFields,100);
+
+    document.addEventListener("DOMContentLoaded", function () {
+   const form = document.getElementById("create-form");
+   const nextButton = document.getElementById("next-button");
+   // Capture the Enter key press
+   form.addEventListener("keydown", function (event) {
+     if (event.key === "Enter") {
+       event.preventDefault(); // Prevent the default form submission
+       nextButton.click(); // Trigger the Next button
+     }
+   });
+ });
+
+ document.addEventListener("DOMContentLoaded", () => {
+
+  // Retrieve and populate form fields from sessionStorage
+
+  const fields = ["diskCount"];
+
+  fields.forEach((field) => {
+
+    const fieldValue = sessionStorage.getItem(field);
+
+    if (fieldValue) {
+
+      const inputField = document.getElementById(field);
+
+      if (inputField) {
+         const input_field = $("#diskCount").selectize()[0].selectize;
+         input_field.setValue(fieldValue);
+
+
+
+      }
+      const inputContainer = document.getElementById('inputContainer');
+   const diskCount = $diskCount[0].selectize.lastValidValue; // Get value from Selectize
+   console.log("Selected Disk Count:", diskCount);
+   // Check if the fields are already created
+   const existingFields = inputContainer.querySelectorAll('.input-group').length;
+   // If the existing fields match the selected disk count, no need to regenerate
+   if (existingFields === parseInt(diskCount)) {
+       console.log("Fields already match the selected disk count, no regeneration needed.");
+     
+   }
+   else{
+      for (let i = 1; i <= fieldValue; i++) {
+
+         console.log("in for retrive"+i);
+          // Create the input group div
+          const inputGroup = document.createElement('div');
+          inputGroup.className = 'input-group';
+  
+          // Create the input element
+          const input = document.createElement('input');
+          input.type = 'text';
+   
+          input.required = true;
+          input.id = `disk${i}`;
+          input.name = `disk${i}`;
+  
+          // Create the label element
+          const label = document.createElement('label');
+          label.setAttribute('for', `disk${i}`);
+          label.innerText = `Disk - ${i} `;
+  
+          // Append input and label to the input group
+          inputGroup.appendChild(input);
+          inputGroup.appendChild(label);
+
+      
+
+                  
+            input.addEventListener('input', function (event) {
+
+               event.target.value = event.target.value.replace(/[^0-9.]/g, '');
+            });
+         
+                  // Append the input group to the container
+                  inputContainer.appendChild(inputGroup);
+
+     
+        }
+
+   }
+      for(let i = 1; i <= inputField.value; i++){
+            const fieldValue= sessionStorage.getItem(`disk${i}`);
+            const diskinputField = document.getElementById(`disk${i}`);
+              if(fieldValue){
+
+                 diskinputField.value = fieldValue;
+                 
+              }
+              
+           }
+
+    }
+   
+        
+
+
+  });
+
+  // Save data to sessionStorage when the form is submitted
+
+  const form = document.querySelector(".form");
+
+  if (form) {
+
+    form.addEventListener("submit", (event) => {
+
+
+      for(let i = 1; i <= 10; i++){
+         const beforediskitem=sessionStorage.getItem(`disk${i}`);
+         if(beforediskitem){
+
+            sessionStorage.removeItem(`disk${i}`);
+
+         }
+
+      }
+
+
+
+
+      fields.forEach((field) => {
+
+        const inputField = document.getElementById(field);
+
+        if (inputField) {
+
+          sessionStorage.setItem(field, inputField.value);
+
+        }
+        
+        for(let i = 1; i <= inputField.value; i++){
+            
+            
+  
+            const diskinputField = document.getElementById(`disk${i}`);
+              if(diskinputField){
+                  sessionStorage.setItem(`disk${i}`,diskinputField.value);
+                 
+              }
+              
+           }
+        
+
+      });
+
+    });
+
+  }
+
+});
+$('#diskCount').selectize();
+      var $diskCount = $("#diskCount").selectize({
+      //options here
+   });
+    </script>
+  
+  
+  </body>
+
+</html>

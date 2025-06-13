@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+       <meta charset="UTF-8">
+       <meta name="viewport" content="width=device-width, initial-scale=1.0">
+       <title>VM Deployment</title>
+  </head>
+  <body>
+    
+    <div class="banner">
+      
+      <div class="card">
+
+         <div class="container">
+            
+            <div class="card4">
+               <div class="summarybox">
+
+                  <div class="summaryinfogrid">
+                  
+                     <div class="summaryheadingbox"> 
+                        <div class="heading">
+                           <p1> Summary</p1>
+                        </div>
+                     </div>
+                     <div></div>
+
+                     <div class="bold"> Vcenter:</div>
+                     <div>{{ vcenter }}</div>
+
+                     <div class="bold">Datacenter:</div>
+                     <div>{{ datacenter }}</div>
+
+                     <div class="bold">Cluster:</div>
+                     <div>{{ cluster }}</div>
+
+                     <div class="bold">Folder:</div>
+                     <div>{{ folder }}</div>
+
+                     <div class="bold">Datastore Cluster:</div>
+                     <div>{{datastoreCluster}}</div>
+
+                     <div class="bold">Template:</div>
+                     <div>{{ template }}</div>
+
+                     <div class="bold">VM Name:</div>
+                     <div>{{ name }}</div>
+
+                     <div class="bold">CPU Number:</div>
+                     <div>{{ cpu }}</div>
+
+                     <div class="bold">Memory:</div>
+                     <div>{{ memory }}</div>
+
+                     <div class="bold">VLAN:</div>
+                     <div>{{ vlan }}</div>
+
+                     <div class="bold">IP:</div>
+                     <div>{{ ip }}</div>
+
+                     <div class="bold">Netmask:</div>
+                     <div>{{ netmask }}</div>
+
+                     <div class="bold">Gateway:</div>
+                     <div>{{ gateway }}</div>
+
+                     <div class="bold">Disk:</div>
+                     <div>{{ disk }}</div>
+                     
+
+                     <div></div>
+                     <div></div>
+
+                  </div>
+
+            
+
+               </div>
+               <form class="form" method="POST" id="create-form">
+               <div class="summarybuttontop"></div>
+               <div class="buttonsbox" >                   
+                  <div class="buttonspacing"></div>
+                  <button class="button-2" onclick="window.location='/vm_installation_4';" role="button" name="previous" id = "previous">Back</button>
+                  <button class="button-1" role="button" name="next" id = "next">Launch</button>
+               </div>
+         
+               </form>
+            </div>
+               <!-- ------SELECT END----- -->
+         </div>
+  
+
+      </div>
+
+  
+      
+       
+    </div>
+
+  </body>
+  <script>
+   // Add event listener to the document
+   document.addEventListener("keydown", function (event) {
+     // Check if the Enter key was pressed
+     if (event.key === "Enter") {
+       // Prevent the default action (like form submission, if any)
+       event.preventDefault();
+       // Programmatically click the Next button
+       const nextButton = document.getElementById("next");
+       if (nextButton) {
+         nextButton.click();
+       }
+     }
+   });
+  </script>
+</html>

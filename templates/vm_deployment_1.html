@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VM Deployment</title>
+    
+    <script src="{{ url_for('static',filename='selectize/jquery-3.6.0.min.js') }}"  ></script>
+
+    <link
+  rel="stylesheet"
+  href="{{ url_for('static',filename='selectize/selectize.default.min.css') }}"
+  integrity="sha512-pTaEn+6gF1IeWv3W1+7X7eM60TFu/agjgoHmYhAfLEU8Phuf6JKiiE8YmsNC0aCgQv4192s4Vai8YZ6VNM6vyQ=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
+<script
+  src="{{ url_for('static',filename='selectize/selectize.min.js') }}"
+  integrity="sha512-IOebNkvA/HZjMM7MxL0NYeLYEalloZ8ckak+NDtOViP7oiYzG5vn6WVXyrJDiJPhl4yRdmNAG49iuLmhkUdVsQ=="
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+></script>
+  </head>
+  <body>
+   
+    <div class="banner">
+     
+      <div class="card">
+ 
+         <div class="container">
+ 
+            <div class="card3">
+               <div class="parent">
+                  <form class="form" method="POST" id="create-form">
+
+                     <div>
+                        <div class="formtext">Vcenter</div>
+                        <select  required id="vcenter" name="vcenter">
+                           <option value=""></option>
+                           {% for vcenter in vcenters %}
+                           <option value="{{ vcenter }}">{{ vcenter }}</option>
+                     {% endfor %}
+                         </select>   
+                     </div>
+                   
+                     <div>
+                        <div class="formtext">Datacenter</div>
+                     <select  required id="datacenter" name="datacenter"> </select>
+                     </div>
+                     <div>
+                        <div class="formtext">Cluster</div>
+                     <select  required id="cluster" name="cluster">  </select>
+                  </div>
+                     <div>
+                        <div class="formtext">Folder</div>
+                     <select   required id="folder" name="folder"></select>
+                  </div>        
+                     <div>
+                        <div class="formtext">Datastore Cluster</div>
+                     <select   required id="datastoreCluster" name="datastoreCluster"></select>
+                  </div>
+
+                  <div class="cardinside1">
+
+                  </div>
+          
+                  <div class="buttonsbox" >                   
+                     <div class="buttonspacing"></div>
+                     <button class="button-2" onclick="window.location='/';" name="previous" id="previous">Back</button>
+                     <button class="button-1" name="next" id="next">Next</button>
+                  </div>
+                  
+                  </form>
+           
+               </div>
+               
+            </div>
+         </div>
+ 
+      </div>
+       
+    </div>
+  </body>
+  <script>
+   // Add event listener to the document
+   document.addEventListener("keydown", function (event) {
+     // Check if the Enter key was pressed
+     if (event.key === "Enter") {
+       // Prevent the default action (like form submission, if any)
+       event.preventDefault();
+       // Programmatically click the Next button
+       const nextButton = document.getElementById("next");
+       if (nextButton) {
+         nextButton.click();
+       }
+     }
+   });
+  </script>
+  <script>
+
+   document.getElementById('next').disabled = true;
+   
+   document.getElementById('previous').disabled = false;
+   
+   // Initialize dropdown elements
+   
+   const vcenter_select = document.getElementById('vcenter');
+
+   const datacenter_select = document.getElementById('datacenter');
+
+   const folder_select = document.getElementById('folder');
+   
+   const cluster_select = document.getElementById('cluster');
+   
+   const datastoreCluster_select = document.getElementById('datastoreCluster');
+   
+   // Onchange for VCenter
+   
+   vcenter_select.onchange = function () {
+   
+              
+      const vcenter =$vcenter[0].selectize.lastValidValue;
+ 
+   
+       fetch(`datacenter/${vcenter}`)
+   
+           .then(response => response.json())
+   
+           .then(data => {
+   
+               populateDropdown("#datacenter", data.datacenters);
+   
+               resetDropdowns([folder_select, cluster_select, datastoreCluster_select]);
+   
+           })
+   
+           .catch(error => console.error("Error fetching datacenters:", error));
+   
+   };
+   
+   // Onchange for Datacenter
+   
+   datacenter_select.onchange = function () {
+   
+       const datacenter =$datacenter[0].selectize.lastValidValue;
+   
+       const vcenter =$vcenter[0].selectize.lastValidValue;
+   
+       resetDropdowns([folder_select, cluster_select, datastoreCluster_select]);
+   
+       fetch(`folder/${datacenter}/${vcenter}`)
+   
+           .then(response => response.json())
+   
+           .then(data => populateDropdown("#folder", data.folders))
+   
+           .catch(error => console.error("Error fetching folders:", error));
+   
+       fetch(`cluster/${datacenter}/${vcenter}`)
+   
+           .then(response => response.json())
+   
+           .then(data => populateDropdown("#cluster", data.clusters))
+   
+           .catch(error => console.error("Error fetching clusters:", error));
+   
+   };
+   
+   // Onchange for Cluster
+   
+   cluster_select.onchange = function () {
+   
+       const cluster = $cluster[0].selectize.lastValidValue;
+   
+       const vcenter =$vcenter[0].selectize.lastValidValue;
+   
+       fetch(`datastoreCluster/${cluster}/${vcenter}`)
+   
+           .then(response => response.json())
+   
+           .then(data => {
+   
+               populateDropdown("#datastoreCluster", data.datastoreClusters, sessionStorage.getItem('datastoreCluster'));
+   
+           })
+   
+           .catch(error => console.error("Error fetching datastore clusters:", error));
+   
+   };
+   
+   // Utility to populate dropdowns
+   
+   function populateDropdown(field, optionsData, preSelectedValue = "") {
+   
+       var $field = $(field).selectize({
+       create: false,
+       sortField: 'text',
+         });
+   // Get the Selectize instance
+       var fieldSelect = $field[0].selectize;
+
+      fieldSelect.clear();
+      fieldSelect.clearOptions();
+
+       optionsData.forEach(option => {
+
+    
+         fieldSelect.addOption({ value: option, text:option });
+
+       });
+   
+       fieldSelect.refreshOptions(false);
+   
+       // Pre-select a value if provided
+       
+       if (preSelectedValue) {
+
+   // Check if the option exists in the Selectize instance
+   const optionExists = fieldSelect.options[preSelectedValue] !== undefined;
+   if (optionExists) {
+       // Set the value in Selectize
+       fieldSelect.setValue(preSelectedValue);
+       // Trigger the "change" event programmatically
+       fieldSelect.trigger('change');
+   } else {
+       console.warn(`Option with value '${preSelectedValue}' does not exist in the Selectize instance.`);
+   }
+}
+   
+   }
+   
+   // Reset dependent dropdowns
+   
+   function resetDropdowns(dropdownElements) {
+   dropdownElements.forEach(dropdown => {
+   
+       const selectizeInstance = $(dropdown).selectize()[0].selectize;
+       console.log("RESET ");
+       console.log(selectizeInstance);
+       selectizeInstance.clear();
+       selectizeInstance.clearOptions();
+   });
+}
+   // Check form validity
+   
+   function checkFormFields() {
+   
+       const vcenter =$vcenter[0].selectize.lastValidValue;
+   
+       const datacenter =$datacenter[0].selectize.lastValidValue;
+   
+       const folder = $folder[0].selectize.lastValidValue;
+   
+       const cluster = $cluster[0].selectize.lastValidValue;
+
+   
+       const nextButton = document.getElementById('next');
+   
+       nextButton.disabled = !(vcenter && datacenter && folder && cluster);
+   
+       document.getElementById('previous').disabled = false;
+   
+   }
+   
+   // Restore saved values on page load
+   
+   document.addEventListener("DOMContentLoaded",async () => {
+   
+       const fields = ["vcenter", "datacenter", "cluster", "folder", "datastoreCluster"];
+   
+       const storedValues = {};
+   
+       // Retrieve stored values
+   
+       fields.forEach(field => {
+   
+           storedValues[field] = sessionStorage.getItem(field);
+          
+   
+       });
+   
+       // Restore and populate fields
+       const vcenter_select = $('#vcenter').selectize()[0].selectize;
+   const datacenter_select = $('#datacenter').selectize()[0].selectize;
+   const cluster_select = $('#cluster').selectize()[0].selectize;
+   const folder_select = $('#folder').selectize()[0].selectize;
+   const datastoreCluster_select = $('#datastoreCluster').selectize()[0].selectize;
+   
+       if (storedValues.vcenter) {
+   
+         //   vcenter_select.value = storedValues.vcenter;
+           vcenter_select.setValue(storedValues.vcenter);
+
+           vcenter_select.trigger('change');
+   
+           fetch(`datacenter/${storedValues.vcenter}`)
+   
+               .then(response => response.json())
+   
+               .then(data => {
+   
+                   populateDropdown("#datacenter", data.datacenters, storedValues.datacenter);
+   
+                   if (storedValues.datacenter) {
+   
+                       fetch(`cluster/${storedValues.datacenter}/${storedValues.vcenter}`)
+   
+                           .then(response => response.json())
+   
+                           .then(data => {
+   
+                               populateDropdown("#cluster", data.clusters, storedValues.cluster);
+   
+                               if (storedValues.cluster) {
+   
+                                   fetch(`datastoreCluster/${storedValues.cluster}/${storedValues.vcenter}`)
+   
+                                       .then(response => response.json())
+   
+                                       .then(data => {
+   
+                                           populateDropdown("#datastoreCluster", data.datastoreClusters, storedValues.datastoreCluster);
+   
+                                       });
+   
+                               }
+   
+                           });
+   
+                       fetch(`folder/${storedValues.datacenter}/${storedValues.vcenter}`)
+   
+                           .then(response => response.json())
+   
+                           .then(data => {
+   
+                               populateDropdown("#folder", data.folders, storedValues.folder);
+   
+                           });
+   
+                   }
+   
+               });
+   
+       }
+   
+   });
+   
+   // Save data to sessionStorage on form submission
+   
+   document.querySelector(".form").addEventListener("submit", () => {
+   
+       const fields = ["vcenter", "datacenter", "cluster", "folder", "datastoreCluster"];
+   
+       fields.forEach(field => {
+   
+           const inputField = document.getElementById(field);
+   
+           if (inputField) {
+   
+               sessionStorage.setItem(field, inputField.value);
+   
+           }
+   
+       });
+   
+   });
+   
+   // Periodic form check
+   
+   setInterval(checkFormFields, 100);
+
+   $('#vcenter').selectize();
+   var $vcenter = $("#vcenter").selectize({
+    //options here
+   });
+
+   $('#datacenter').selectize();
+      var $datacenter = $("#datacenter").selectize({
+      //options here
+   });
+
+   $('#cluster').selectize();
+      var $cluster = $("#cluster").selectize({
+      //options here
+   });
+
+   $('#folder').selectize();
+      var $folder = $("#folder").selectize({
+      //options here
+   });
+
+   $('#datastoreCluster').selectize();
+      var $datastoreCluster = $("#datastoreCluster").selectize({
+      //options here
+   });
+
+   </script> 
+</html>
